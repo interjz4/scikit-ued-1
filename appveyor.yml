@@ -20,13 +20,19 @@ environment:
   matrix:
 
       - PYTHON_VERSION: "3.6"
-      - PYTHON_VERSION: "3.5"
 
 matrix:
    fast_finish: true
 
 platform:
     -x64
+
+# Skipping commits affecting specific files (GitHub only). More details here: /docs/appveyor-yml
+skip_commits:
+  files:
+    - docs/*
+    - external/*
+    - '**/*.rst'
 
 install:
 

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from skimage.io import imread as skread
-from tifffile import imread as tiffread
+from pathlib import Path
+import skimage
+import tifffile
 
 from .merlin import mibread
 
@@ -11,9 +12,6 @@ except ImportError:
     WITH_PYQTGRAPH = False
 else:
     WITH_PYQTGRAPH = True
-    import os
-    os.environ['PYQTGRAPH_QT_LIB'] = 'PyQt5'
-    from PyQt5.QtWidgets import QApplication
 
 def diffread(fname):
     """
@@ -43,27 +41,27 @@ def diffread(fname):
     fname = str(fname)  # In case of pathlib.Path
 
     if fname.endswith(('tiff', 'tif')):
-        return tiffread(fname)
+        return tifffile.imread(fname)
     elif fname.endswith('.mib'):
         return mibread(fname)
     else:
-        return skread(fname, as_grey = True)
+        return skimage.io.imread(fname, as_grey = True)
 
 def diffshow(image):
     """ 
     Display an image (from an array or from a file) in an interactive window.
 
-    This function requires PyQtGraph and PyQt5 to be importable. These
+    This function requires `PyQtGraph` to be importable. These
     are optional dependencies.
 
     Parameters
     ----------
-    image : str or array-like
+    image : path-like or array-like
         Image file name or array-like. 
     
     Raises
     ------
-    ImportError : if PyQtGraph \ PyQt5 are not available
+    ImportError : if `PyQtGraph` is not available.
 
     Notes
     -----
@@ -71,12 +69,12 @@ def diffshow(image):
     also supported by this function. 
     """
     if not WITH_PYQTGRAPH:
-        raise ImportError('PyQtGraph is not installed')
+        raise ImportError('PyQtGraph is not installed.')
 
-    if isinstance(image, str):
+    if isinstance(image, (str, Path)):
         image = diffread(image)
 
-    app = QApplication([])
+    app = pg.QtGui.QApplication([])
     viewer = pg.ImageView()
     viewer.setImage(image)
     viewer.setWindowTitle('Scikit-UED Diffraction Viewer')

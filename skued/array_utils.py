@@ -30,8 +30,7 @@ def repeated_array(arr, num, axes = -1):
     
     Raises
     ------
-    ValueError
-        If num and axes are tuples of different lengths.
+    ValueError : If num and axes are tuples of different lengths.
     """
     if not num:
         return arr
@@ -82,7 +81,8 @@ def mirror(arr, axes = None):
     
     Returns
     -------
-    out : 
+    out : `~numpy.ndarray`
+        Mirrored array.
     """
     if axes is None:
         reverse = [slice(None, None, -1)] * arr.ndim
@@ -177,7 +177,7 @@ def cart2spherical(x, y, z):
     t = np.arccos(z/r)
     return r, p, t
 
-def plane_mesh(v1, v2, x1, x2 = None, origin = [0,0,0]):
+def plane_mesh(v1, v2, x1, x2 = None, origin = (0,0,0)):
     """
     Generate a spatial mesh for a plane defined by two vectors.
 

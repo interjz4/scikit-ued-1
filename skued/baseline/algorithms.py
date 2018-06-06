@@ -5,7 +5,7 @@ Algorithms based on the dual-tree complex wavelet transform
 """
 from collections.abc import Iterable
 import pywt
-from . import dtcwt, idtcwt
+from .dtcwt import dtcwt, idtcwt
 import numpy as np
 from functools import partial
 from warnings import warn
@@ -13,6 +13,9 @@ from warnings import warn
 def _iterative_baseline(array, max_iter, mask, background_regions, axes, approx_rec_func, func_kwargs):
 	""" Base function for iterative baseline determination """
 	array = np.asarray(array, dtype = np.float)
+
+	if background_regions is None:
+		background_regions = []
 
 	if isinstance(axes, int):
 		axes = (axes,)
@@ -132,8 +135,7 @@ def _dwt_approx_rec(array, level, wavelet, mode, axis):
     
 	Raises
 	------    
-	ValueError
-		If input array has dimension > 2 
+	ValueError : If input array has dimension > 2 
 	"""
 	if isinstance(axis, Iterable):
 		axis = axis[0]
@@ -201,8 +203,7 @@ def _dwt_approx_rec2(array, level, wavelet, mode, axis):
     
 	Raises
 	------    
-	ValueError
-		If input array has dimension > 2 
+	ValueError : If input array has dimension > 2 
 	"""
 	array = np.asarray(array, dtype = np.float)
 	for ax in axis:
@@ -242,7 +243,7 @@ def _dwt_approx_rec2(array, level, wavelet, mode, axis):
 	return reconstructed
 
 def baseline_dt(array, max_iter, level = None, first_stage = 'sym6', wavelet = 'qshift1', 
-				background_regions = [], mask = None, mode = 'constant', axis = -1):
+				background_regions = None, mask = None, mode = 'constant', axis = -1):
 	"""
 	Iterative method of baseline-determination based on the dual-tree complex wavelet transform.
 	This function only works in 1D, along an axis. For baseline of 2D arrays, see :func:`baseline_dwt`.
@@ -258,11 +259,11 @@ def baseline_dt(array, max_iter, level = None, first_stage = 'sym6', wavelet = '
 		the input signal (read: a lower frequency baseline). If None (default), the maximum level
 		possible is used.
 	first_stage : str, optional
-		Wavelet to use for the first stage. See :data:`skued.baseline.ALL_FIRST_STAGE` for a list of suitable arguments
+		Wavelet to use for the first stage. See :func:`skued.available_first_stage_filters` for a list of suitable arguments
 	wavelet : str, optional
 		Wavelet to use in stages > 1. Must be appropriate for the dual-tree complex wavelet transform.
-		See :data:`skued.baseline.ALL_COMPLEX_WAV` for possible values.
-	background_regions : iterable, optional
+		See :func:`skued.available_dt_filters` for possible values.
+	background_regions : iterable or None, optional
 		Indices of the array values that are known to be purely background. Depending
 		on the dimensions of array, the format is different:
 
@@ -293,7 +294,7 @@ def baseline_dt(array, max_iter, level = None, first_stage = 'sym6', wavelet = '
 									func_kwargs = {'level': level, 'wavelet': wavelet, 'mode': mode,
 													'first_stage': first_stage, 'axis': axis})
 
-def baseline_dwt(array, max_iter, level = None, wavelet = 'sym6', background_regions = [], 
+def baseline_dwt(array, max_iter, level = None, wavelet = 'sym6', background_regions = None, 
 				 mask = None, mode = 'constant', axis = -1):
 	"""
 	Iterative method of baseline determination, based on the discrete wavelet transform. 
@@ -311,7 +312,7 @@ def baseline_dwt(array, max_iter, level = None, wavelet = 'sym6', background_reg
 	wavelet : PyWavelet.Wavelet object or str, optional
 		Wavelet with which to perform the algorithm. See PyWavelet documentation
 		for available values. Default is 'sym6'.
-	background_regions : iterable, optional
+	background_regions : iterable or None, optional
 		Indices of the array values that are known to be purely background. Depending
 		on the dimensions of array, the format is different:
 

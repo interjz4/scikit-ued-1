@@ -4,7 +4,7 @@ import unittest
 from copy import copy, deepcopy
 from itertools import permutations
 from math import radians
-from os.path import join, isdir
+from pathlib import Path
 from random import choice, seed
 from tempfile import TemporaryDirectory
 
@@ -76,6 +76,20 @@ class TestSpglibMethods(unittest.TestCase):
                 prim = c.primitive(symprec = 0.1)
                 prim2 = prim.primitive(symprec = 0.1)
                 self.assertIs(prim, prim2)
+
+class TestCrystalSpecialMethods(unittest.TestCase):
+
+    def test_str_vs_repr(self):
+        """ Test that str and repr are workign as expected """
+        for name in Crystal.builtins:
+            with self.subTest(name):
+                c = Crystal.from_database(name)
+
+                # If small crystal, repr and str should be the same
+                if len(c) <= 10:
+                    self.assertEqual(repr(c), str(c))
+                else:
+                    self.assertNotEqual(repr(c), str(c))
 
 class TestCrystalRotations(unittest.TestCase):
 
@@ -157,10 +171,10 @@ class TestCrystalConstructors(unittest.TestCase):
     def test_from_cod_new_dir(self):     
         """ Test that a cache dir is created by Crystal.from_cod """
         with TemporaryDirectory() as temp_dir:
-            download_dir = join(temp_dir, 'test_cod')
-            self.assertFalse(isdir(download_dir))
+            download_dir = Path(temp_dir) / 'test_cod'
+            self.assertFalse(download_dir.exists())
             c = Crystal.from_cod(1521124, download_dir = download_dir)
-            self.assertTrue(isdir(download_dir))
+            self.assertTrue(download_dir.exists())
 
 if __name__ == '__main__':
     unittest.main()
